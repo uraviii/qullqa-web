@@ -49,6 +49,8 @@ CREATE TABLE usuarios (
     password        VARCHAR(255) NOT NULL,
     rol_id          INT NOT NULL,
     fecha_registro  DATE NOT NULL DEFAULT (CURRENT_DATE),
+    foto_perfil     VARCHAR(255) NULL,
+    biografia       TEXT NULL,
     CONSTRAINT fk_usuarios_rol
         FOREIGN KEY (rol_id) REFERENCES roles(id)
 ) ENGINE=InnoDB;
@@ -57,10 +59,10 @@ CREATE TABLE usuarios (
 --   Estudiante:    estudiante@unam.edu.pe / clave123
 --   Docente:       docente@unam.edu.pe    / clave456
 --   Administrador: admin@unam.edu.pe      / admin123
-INSERT INTO usuarios (nombre, correo, password, rol_id) VALUES
-    ('Leo Enrique Pari Puma', 'estudiante@unam.edu.pe', '$2y$10$jpEEYwVjXtJyHHwrMBgDneOO7I/mllUd6.6R36C6fDIJDCnLOP0sK', 1),
-    ('Juan Pari Barrera',     'docente@unam.edu.pe',    '$2y$10$GhgJhikvGRA.3zQ88KU94Obiu26PY4HNCFSk/TtJ7QmJjji745Ela', 2),
-    ('Administrador',         'admin@unam.edu.pe',      '$2y$10$8XoYVjfLAuGzrKts4Vz65.PtTOOAp00Hwa4IwiKTq0.TdAOEVMH7C', 3);
+INSERT INTO usuarios (nombre, correo, password, rol_id, foto_perfil, biografia) VALUES
+    ('Leo Enrique Pari Puma', 'estudiante@unam.edu.pe', '$2y$10$jpEEYwVjXtJyHHwrMBgDneOO7I/mllUd6.6R36C6fDIJDCnLOP0sK', 1, 'estudiante_demo.svg', 'Estudiante apasionado por la Inteligencia Artificial y la Ciencia de Datos en la UNAM.'),
+    ('Juan Pari Barrera',     'docente@unam.edu.pe',    '$2y$10$GhgJhikvGRA.3zQ88KU94Obiu26PY4HNCFSk/TtJ7QmJjji745Ela', 2, 'docente_demo.svg', 'Docente e Investigador de la UNAM especialista en Ciberseguridad e Ingeniería de Software.'),
+    ('Administrador',         'admin@unam.edu.pe',      '$2y$10$8XoYVjfLAuGzrKts4Vz65.PtTOOAp00Hwa4IwiKTq0.TdAOEVMH7C', 3, NULL, 'Administrador del sistema Qullqa.');
 
 -- 4) investigaciones
 CREATE TABLE investigaciones (
@@ -157,3 +159,7 @@ CREATE TABLE retroalimentaciones (
     CONSTRAINT fk_feedback_docente
         FOREIGN KEY (docente_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB;
+
+INSERT INTO retroalimentaciones (investigacion_id, docente_id, comentario, fecha) VALUES
+    (1, 2, 'Excelente propuesta técnica. Sugiero profundizar en la matriz de confusión y comparar la arquitectura CNN con arquitecturas livianas como MobileNetV3 para ejecución en dispositivos de borde.', '2026-04-12 10:30:00'),
+    (5, 2, 'Muy buen análisis comparativo entre K-Means y DBSCAN. Recomiendo agregar métricas de validación interna como el coeficiente de Silueta e índice Davies-Bouldin para fundamentar el número óptimo de clusters.', '2026-05-18 16:45:00');

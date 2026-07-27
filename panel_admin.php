@@ -129,7 +129,7 @@ $categorias = ['ia' => 'Inteligencia Artificial', 'bigdata' => 'Big Data', 'cali
         <table style="width:100%; border-collapse:collapse; margin-top:20px;">
           <thead>
             <tr style="text-align:left; border-bottom:2px solid var(--color-pill);">
-              <th style="padding:10px;">Nombre</th>
+              <th style="padding:10px;">Usuario</th>
               <th style="padding:10px;">Correo</th>
               <th style="padding:10px;">Rol</th>
               <th style="padding:10px;">Acciones</th>
@@ -138,10 +138,18 @@ $categorias = ['ia' => 'Inteligencia Artificial', 'bigdata' => 'Big Data', 'cali
           <tbody>
             <?php foreach ($usuarios as $u): ?>
               <tr style="border-bottom:1px solid var(--color-pill);">
-                <td style="padding:10px;"><?php echo htmlspecialchars($u['nombre']); ?></td>
-                <td style="padding:10px;"><?php echo htmlspecialchars($u['correo']); ?></td>
-                <td style="padding:10px;"><?php echo htmlspecialchars($u['rol']); ?></td>
                 <td style="padding:10px;">
+                  <a href="perfil.php?id=<?php echo $u['id']; ?>" style="font-weight:600; color:var(--color-purple);">
+                    <?php echo htmlspecialchars($u['nombre']); ?>
+                  </a>
+                </td>
+                <td style="padding:10px;"><?php echo htmlspecialchars($u['correo']); ?></td>
+                <td style="padding:10px;">
+                  <span class="user-role-tag"><?php echo htmlspecialchars($u['rol']); ?></span>
+                </td>
+                <td style="padding:10px;">
+                  <a href="perfil.php?id=<?php echo $u['id']; ?>" style="color:var(--color-purple); font-weight:600;">Ver perfil</a>
+                  &nbsp;·&nbsp;
                   <a href="panel_admin.php?seccion=usuarios&editar_usuario=<?php echo $u['id']; ?>">Editar</a>
                   &nbsp;·&nbsp;
                   <form method="post" action="panel_admin.php?seccion=usuarios" style="display:inline;"

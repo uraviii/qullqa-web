@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGradEst" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3A2260" />
+      <stop offset="100%" stop-color="#1E1B29" />
+    </linearGradient>
+    <linearGradient id="skinGradEst" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD1A4" />
+      <stop offset="100%" stop-color="#F5B27D" />
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="80" fill="url(#bgGradEst)" />
+  <!-- Hair back -->
+  <path d="M 45 60 C 45 35 115 35 115 60 L 115 80 L 45 80 Z" fill="#2C1B18" />
+  <!-- Head -->
+  <circle cx="80" cy="72" r="32" fill="url(#skinGradEst)" />
+  <!-- Hair front -->
+  <path d="M 48 60 C 52 42 108 42 112 60 C 98 48 62 48 48 60 Z" fill="#2C1B18" />
+  <!-- Eyes -->
+  <circle cx="68" cy="72" r="3.5" fill="#2C1B18" />
+  <circle cx="92" cy="72" r="3.5" fill="#2C1B18" />
+  <!-- Glasses -->
+  <rect x="60" y="66" width="16" height="12" rx="3" fill="none" stroke="#F2A93B" stroke-width="2.5" />
+  <rect x="84" y="66" width="16" height="12" rx="3" fill="none" stroke="#F2A93B" stroke-width="2.5" />
+  <line x1="76" y1="72" x2="84" y2="72" stroke="#F2A93B" stroke-width="2.5" />
+  <!-- Smile -->
+  <path d="M 70 86 Q 80 94 90 86" fill="none" stroke="#C46D46" stroke-width="3" stroke-linecap="round" />
+  <!-- Body/Shirt -->
+  <path d="M 28 148 C 28 116 52 108 80 108 C 108 108 132 116 132 148 Z" fill="#4B2E7C" />
+  <path d="M 68 108 L 80 126 L 92 108 Z" fill="#F2A93B" />
+</svg>

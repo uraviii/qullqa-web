@@ -75,10 +75,19 @@ $feedback = $investigacion ? obtenerFeedbackDe($investigacion['id']) : [];
             <p style="color:var(--color-text-light);">Todavía no hay comentarios de un docente sobre esta investigación.</p>
           <?php else: ?>
             <?php foreach ($feedback as $comentario): ?>
-              <div class="info-card" style="margin-bottom:14px;">
-                <strong style="color:var(--color-purple);"><?php echo htmlspecialchars($comentario['docente']); ?></strong>
-                <span style="color:var(--color-text-light); font-size:.82rem;"> · <?php echo htmlspecialchars($comentario['fecha']); ?></span>
-                <p style="margin:8px 0 0;"><?php echo nl2br(htmlspecialchars($comentario['comentario'])); ?></p>
+              <div class="info-card" style="margin-bottom:14px; border-left:4px solid var(--color-purple);">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                  <div>
+                    <a href="perfil.php?id=<?php echo $comentario['docente_id']; ?>" style="color:var(--color-purple); font-weight:700;">
+                      <?php echo htmlspecialchars($comentario['docente']); ?>
+                    </a>
+                    <span style="color:var(--color-text-light); font-size:.82rem;"> · <?php echo htmlspecialchars($comentario['fecha']); ?></span>
+                  </div>
+                  <a href="perfil.php?id=<?php echo $comentario['docente_id']; ?>" class="filter-btn" style="font-size:0.75rem; padding:3px 10px;">
+                    Ver perfil
+                  </a>
+                </div>
+                <p style="margin:10px 0 0; line-height:1.5; color:var(--color-text);"><?php echo nl2br(htmlspecialchars($comentario['comentario'])); ?></p>
               </div>
             <?php endforeach; ?>
           <?php endif; ?>
@@ -87,10 +96,10 @@ $feedback = $investigacion ? obtenerFeedbackDe($investigacion['id']) : [];
             <h3 style="margin-top:28px;">Dejar un comentario</h3>
 
             <?php if ($feedbackEnviado): ?>
-              <p class="form-success is-visible">✓ Tu comentario fue publicado.</p>
+              <p class="form-success is-visible">Tu comentario fue publicado correctamente.</p>
             <?php endif; ?>
             <?php if ($errorFeedback !== ''): ?>
-              <p class="form-success" style="display:block; background:#FBEAEA; color:#8A2C2C;">⚠ <?php echo htmlspecialchars($errorFeedback); ?></p>
+              <p class="form-success" style="display:block; background:#FBEAEA; color:#8A2C2C;"><?php echo htmlspecialchars($errorFeedback); ?></p>
             <?php endif; ?>
 
             <form method="post" action="detalle.php?id=<?php echo $investigacion['id']; ?>">
@@ -104,18 +113,25 @@ $feedback = $investigacion ? obtenerFeedbackDe($investigacion['id']) : [];
 
         <aside class="info-card">
           <h3>Ficha</h3>
-          <p><strong>Autor<?php echo count($investigacion['autores']) > 1 ? 'es' : ''; ?>:</strong><br>
-             <?php echo htmlspecialchars(listarAutores($investigacion['autores'])); ?></p>
+          <p>
+            <strong>Autor<?php echo count($investigacion['autores']) > 1 ? 'es' : ''; ?>:</strong><br>
+            <?php echo htmlspecialchars(listarAutores($investigacion['autores'])); ?><br>
+            <?php if (!empty($investigacion['usuario_id'])): ?>
+              <a href="perfil.php?id=<?php echo $investigacion['usuario_id']; ?>" class="filter-btn" style="display:inline-block; margin-top:8px; font-size:0.8rem; padding:4px 12px;">
+                Ver perfil del autor
+              </a>
+            <?php endif; ?>
+          </p>
           <p><strong>Categoría:</strong><br><?php echo htmlspecialchars(etiquetaCategoria($investigacion['categoria'])); ?></p>
           <p><strong>Citas:</strong><br><?php echo $investigacion['citas']; ?></p>
 
           <?php if (!empty($investigacion['archivo_pdf'])): ?>
             <div class="pdf-sidebar-actions">
               <a href="uploads/<?php echo htmlspecialchars($investigacion['archivo_pdf']); ?>" target="_blank" class="form-submit btn-pdf-view">
-                📄 Abrir PDF
+                Abrir PDF
               </a>
               <a href="uploads/<?php echo htmlspecialchars($investigacion['archivo_pdf']); ?>" download class="filter-btn btn-pdf-download" style="display:block; text-align:center; margin-top:8px;">
-                📥 Descargar PDF
+                Descargar PDF
               </a>
             </div>
           <?php else: ?>

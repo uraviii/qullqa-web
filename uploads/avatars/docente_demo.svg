@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGradDoc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2B2438" />
+      <stop offset="100%" stop-color="#14111B" />
+    </linearGradient>
+    <linearGradient id="skinGradDoc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCD6B5" />
+      <stop offset="100%" stop-color="#EAA67B" />
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="80" fill="url(#bgGradDoc)" />
+  <!-- Hair back -->
+  <path d="M 46 62 C 46 36 114 36 114 62 L 114 75 L 46 75 Z" fill="#3D3846" />
+  <!-- Head -->
+  <circle cx="80" cy="72" r="32" fill="url(#skinGradDoc)" />
+  <!-- Hair top -->
+  <path d="M 46 58 C 50 38 110 38 114 58 C 96 46 64 46 46 58 Z" fill="#4B4453" />
+  <!-- Eyes -->
+  <circle cx="68" cy="72" r="3" fill="#2C1B18" />
+  <circle cx="92" cy="72" r="3" fill="#2C1B18" />
+  <!-- Smile -->
+  <path d="M 72 88 Q 80 94 88 88" fill="none" stroke="#B85D36" stroke-width="2.5" stroke-linecap="round" />
+  <!-- Tie and Suit -->
+  <path d="M 26 148 C 26 118 52 110 80 110 C 108 110 134 118 134 148 Z" fill="#1E1B29" />
+  <path d="M 64 110 L 80 148 L 96 110 Z" fill="#FFFFFF" />
+  <path d="M 76 110 L 80 148 L 84 110 Z" fill="#4B2E7C" />
+</svg>

@@ -9,6 +9,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once __DIR__ . '/funciones.php';
+
 $paginaActual = basename($_SERVER['PHP_SELF']);
 
 switch ($paginaActual) {
@@ -36,6 +38,9 @@ switch ($paginaActual) {
     case 'panel_admin.php':
         $navActivo = 'panel_admin';
         break;
+    case 'perfil.php':
+        $navActivo = 'perfil';
+        break;
     default:
         $navActivo = '';
 }
@@ -53,7 +58,7 @@ if (!isset($tituloPagina)) {
   <link rel="icon" href="assets/logo-qullqa.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
 </head>
 <body>
 
@@ -117,12 +122,16 @@ if (!isset($tituloPagina)) {
         
         <?php if (isset($_SESSION['usuario'])): ?>
           <li class="nav-item-user">
-            <a href="login.php?logout=1" class="nav-link nav-btn-logout" title="Clic para Cerrar Sesión">
-              👤 <strong><?php echo htmlspecialchars($_SESSION['nombre'] ?? $_SESSION['usuario']); ?></strong>
+            <a href="perfil.php" class="nav-link <?php if ($navActivo === 'perfil') echo 'is-active'; ?>" title="Ver mi perfil">
+              <strong><?php echo htmlspecialchars($_SESSION['nombre'] ?? $_SESSION['usuario']); ?></strong>
               <?php if (isset($_SESSION['rol'])): ?>
-                (<?php echo htmlspecialchars($_SESSION['rol']); ?>)
+                <span class="user-role-tag"><?php echo htmlspecialchars($_SESSION['rol']); ?></span>
               <?php endif; ?>
-              <span class="logout-icon" style="margin-left:6px; opacity:0.6;">✕</span>
+            </a>
+          </li>
+          <li>
+            <a href="login.php?logout=1" class="nav-link nav-btn-logout" title="Cerrar Sesión" style="color:var(--color-text-light);">
+              Cerrar sesión
             </a>
           </li>
         <?php else: ?>

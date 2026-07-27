@@ -34,15 +34,25 @@ $investigacionesEstudiantes = obtenerInvestigacionesDeEstudiantes();
 
         <div class="research-grid" style="margin-top:0;">
           <?php foreach ($investigacionesEstudiantes as $item): ?>
-            <a class="research-card" href="detalle.php?id=<?php echo $item['id']; ?>">
-              <h3 class="research-card__title"><?php echo htmlspecialchars($item['titulo']); ?></h3>
+            <div class="research-card">
+              <h3 class="research-card__title">
+                <a href="detalle.php?id=<?php echo $item['id']; ?>" style="color:var(--color-gold);"><?php echo htmlspecialchars($item['titulo']); ?></a>
+              </h3>
               <p class="research-card__desc"><?php echo htmlspecialchars($item['desc']); ?></p>
-              <p class="research-card__desc" style="opacity:.8; font-size:.82rem;">
-                Publicado por: <?php echo htmlspecialchars($item['autor_cuenta']); ?><br>
-                <?php echo count($item['feedback']); ?> comentario<?php echo count($item['feedback']) === 1 ? '' : 's'; ?> hasta ahora
+              <p class="research-card__desc" style="opacity:.9; font-size:.84rem;">
+                Publicado por: 
+                <a href="perfil.php?id=<?php echo $item['usuario_id']; ?>" style="color:var(--color-gold); text-decoration:underline; font-weight:600;">
+                  <?php echo htmlspecialchars($item['autor_cuenta']); ?>
+                </a><br>
+                <?php echo count($item['feedback']); ?> comentario<?php echo count($item['feedback']) === 1 ? '' : 's'; ?> de retroalimentación
               </p>
-              <span class="research-card__tag"><?php echo htmlspecialchars(etiquetaCategoria($item['categoria'])); ?></span>
-            </a>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px;">
+                <span class="research-card__tag" style="margin:0;"><?php echo htmlspecialchars(etiquetaCategoria($item['categoria'])); ?></span>
+                <a href="perfil.php?id=<?php echo $item['usuario_id']; ?>" style="font-size:0.75rem; color:#FFF; opacity:0.85; text-decoration:underline;">
+                  Ver perfil
+                </a>
+              </div>
+            </div>
           <?php endforeach; ?>
         </div>
 

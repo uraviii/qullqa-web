@@ -104,7 +104,8 @@ function validarCredenciales(string $usuario, string $password): array
     // SELECT con alias (AS) y WHERE por correo
     $sentencia = $conexion->prepare(
         'SELECT u.id AS usuario_id, u.nombre AS nombre_usuario,
-                u.password AS password_hash, r.nombre AS rol
+                u.password AS password_hash, r.nombre AS rol,
+                u.foto_perfil, u.biografia
          FROM usuarios AS u, roles AS r
          WHERE u.correo = :correo AND u.rol_id = r.id'
     );
@@ -120,11 +121,13 @@ function validarCredenciales(string $usuario, string $password): array
     }
 
     return [
-        'ok'      => true,
-        'mensaje' => '',
-        'id'      => (int) $fila['usuario_id'],
-        'nombre'  => $fila['nombre_usuario'],
-        'rol'     => $fila['rol'],
+        'ok'          => true,
+        'mensaje'     => '',
+        'id'          => (int) $fila['usuario_id'],
+        'nombre'      => $fila['nombre_usuario'],
+        'rol'         => $fila['rol'],
+        'foto_perfil' => $fila['foto_perfil'],
+        'biografia'   => $fila['biografia'],
     ];
 }
 
@@ -301,7 +304,8 @@ function obtenerFeedbackDe(int $investigacionId): array
 
     // FROM con dos tablas + WHERE (mismo patrón que el login: sin JOIN)
     $sentencia = $conexion->prepare(
-        'SELECT f.comentario AS comentario, f.fecha AS fecha, u.nombre AS docente
+        'SELECT f.comentario AS comentario, f.fecha AS fecha, u.nombre AS docente,
+                f.docente_id AS docente_id, u.foto_perfil AS docente_foto
          FROM retroalimentaciones AS f, usuarios AS u
          WHERE f.investigacion_id = :id AND f.docente_id = u.id
          ORDER BY f.fecha DESC'
@@ -490,6 +494,7 @@ function obtenerInvestigacionesDeEstudiantes(): array
             'categoria'   => $categoriasPorId[$fila['categoria_id']] ?? 'general',
             'archivo_pdf' => $fila['archivo_pdf'],
             'autor_cuenta'=> $fila['autor_cuenta'],
+            'usuario_id'  => (int) $fila['usuario_id'],
             'autores'     => obtenerAutoresDe((int) $fila['id']),
             'feedback'    => obtenerFeedbackDe((int) $fila['id']),
         ];
@@ -507,7 +512,7 @@ function obtenerUsuarios(): array
 
     $sentencia = $conexion->query(
         'SELECT u.id AS id, u.nombre AS nombre, u.correo AS correo,
-                u.rol_id AS rol_id, r.nombre AS rol
+                u.rol_id AS rol_id, r.nombre AS rol, u.fecha_registro, u.foto_perfil, u.biografia
          FROM usuarios AS u, roles AS r
          WHERE u.rol_id = r.id
          ORDER BY u.nombre'
@@ -526,17 +531,203 @@ function obtenerRoles(): array
 }
 
 /**
- * Un usuario puntual por id (para precargar el formulario de edición).
+ * Un usuario puntual por id con información completa para perfil y formularios.
  */
 function obtenerUsuarioPorId(int $id): ?array
 {
     $conexion = obtenerConexion();
 
-    $sentencia = $conexion->prepare('SELECT id, nombre, correo, rol_id FROM usuarios WHERE id = :id');
+    $sentencia = $conexion->prepare(
+        'SELECT u.id, u.nombre, u.correo, u.rol_id, r.nombre AS rol,
+                u.fecha_registro, u.foto_perfil, u.biografia
+         FROM usuarios AS u, roles AS r
+         WHERE u.id = :id AND u.rol_id = r.id'
+    );
     $sentencia->execute(['id' => $id]);
     $fila = $sentencia->fetch();
 
     return $fila ?: null;
+}
+
+/**
+ * Devuelve la ruta web del avatar de un usuario o el avatar por defecto.
+ */
+function obtenerUrlAvatar(?string $fotoPerfil): string
+{
+    if (!empty($fotoPerfil) && file_exists(__DIR__ . '/../uploads/avatars/' . $fotoPerfil)) {
+        return 'uploads/avatars/' . $fotoPerfil;
+    }
+    return 'assets/default-avatar.svg';
+}
+
+/**
+ * Obtiene todas las investigaciones publicadas por un usuario específico (Estudiante o Docente).
+ */
+function obtenerInvestigacionesPorUsuario(int $usuarioId): array
+{
+    $conexion = obtenerConexion();
+    $categoriasPorId = obtenerCategorias();
+
+    $sentencia = $conexion->prepare(
+        'SELECT id, titulo, descripcion, categoria_id, usuario_id, citas, archivo_pdf,
+                fecha_publicacion AS publicado_el
+         FROM investigaciones
+         WHERE usuario_id = :usuarioId
+         ORDER BY fecha_publicacion DESC'
+    );
+    $sentencia->execute(['usuarioId' => $usuarioId]);
+
+    $resultado = [];
+    foreach ($sentencia->fetchAll() as $fila) {
+        $resultado[] = [
+            'id'          => (int) $fila['id'],
+            'titulo'      => $fila['titulo'],
+            'desc'        => $fila['descripcion'],
+            'categoria'   => $categoriasPorId[$fila['categoria_id']] ?? 'general',
+            'citas'       => (int) $fila['citas'],
+            'archivo_pdf' => $fila['archivo_pdf'],
+            'publicado_el'=> $fila['publicado_el'],
+            'autores'     => obtenerAutoresDe((int) $fila['id']),
+            'feedback'    => obtenerFeedbackDe((int) $fila['id']),
+        ];
+    }
+
+    return $resultado;
+}
+
+/**
+ * Obtiene todas las investigaciones a las que un docente les brindó retroalimentación,
+ * junto con el comentario específico realizado por este docente.
+ */
+function obtenerFeedbackPorDocente(int $docenteId): array
+{
+    $conexion = obtenerConexion();
+    $categoriasPorId = obtenerCategorias();
+
+    $sentencia = $conexion->prepare(
+        'SELECT f.id AS feedback_id, f.comentario, f.fecha AS fecha_feedback,
+                i.id AS investigacion_id, i.titulo AS investigacion_titulo,
+                i.descripcion AS investigacion_desc, i.categoria_id, i.citas,
+                i.archivo_pdf, i.fecha_publicacion,
+                u.id AS estudiante_id, u.nombre AS estudiante_nombre
+         FROM retroalimentaciones AS f, investigaciones AS i, usuarios AS u
+         WHERE f.docente_id = :docenteId
+           AND f.investigacion_id = i.id
+           AND i.usuario_id = u.id
+         ORDER BY f.fecha DESC'
+    );
+    $sentencia->execute(['docenteId' => $docenteId]);
+
+    $resultado = [];
+    foreach ($sentencia->fetchAll() as $fila) {
+        $resultado[] = [
+            'feedback_id'          => (int) $fila['feedback_id'],
+            'comentario'           => $fila['comentario'],
+            'fecha_feedback'       => $fila['fecha_feedback'],
+            'investigacion_id'     => (int) $fila['investigacion_id'],
+            'investigacion_titulo' => $fila['investigacion_titulo'],
+            'investigacion_desc'   => $fila['investigacion_desc'],
+            'categoria'            => $categoriasPorId[$fila['categoria_id']] ?? 'general',
+            'citas'                => (int) $fila['citas'],
+            'archivo_pdf'          => $fila['archivo_pdf'],
+            'estudiante_id'        => (int) $fila['estudiante_id'],
+            'estudiante_nombre'    => $fila['estudiante_nombre'],
+            'autores'              => obtenerAutoresDe((int) $fila['investigacion_id']),
+        ];
+    }
+
+    return $resultado;
+}
+
+/**
+ * Actualiza el perfil de un usuario incluyendo opcionalmente la foto de perfil subida.
+ *
+ * @return array{ok: bool, mensaje: string}
+ */
+function actualizarPerfilUsuario(int $usuarioId, array $datos, ?array $archivoFoto = null): array
+{
+    $conexion = obtenerConexion();
+
+    $nombre    = trim($datos['nombre'] ?? '');
+    $correo    = trim($datos['correo'] ?? '');
+    $biografia = trim($datos['biografia'] ?? '');
+
+    if ($nombre === '' || strlen($nombre) < 3) {
+        return ['ok' => false, 'mensaje' => 'El nombre debe tener al menos 3 caracteres.'];
+    }
+
+    if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+        return ['ok' => false, 'mensaje' => 'Correo electrónico no válido.'];
+    }
+
+    // Verificar si el correo ya está registrado por otro usuario
+    $check = $conexion->prepare('SELECT id FROM usuarios WHERE correo = :correo AND id != :id');
+    $check->execute(['correo' => $correo, 'id' => $usuarioId]);
+    if ($check->fetch()) {
+        return ['ok' => false, 'mensaje' => 'Ya existe otra cuenta registrada con este correo.'];
+    }
+
+    $nombreFotoProcesada = null;
+
+    if ($archivoFoto && $archivoFoto['error'] === UPLOAD_ERR_OK) {
+        $ext = strtolower(pathinfo($archivoFoto['name'], PATHINFO_EXTENSION));
+        $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
+
+        if (!in_array($ext, $extensionesPermitidas)) {
+            return ['ok' => false, 'mensaje' => 'La foto de perfil debe ser un archivo de imagen válido (JPG, PNG, WEBP, SVG).'];
+        }
+
+        $directorioAvatars = __DIR__ . '/../uploads/avatars/';
+        if (!is_dir($directorioAvatars)) {
+            mkdir($directorioAvatars, 0777, true);
+        }
+
+        $nombreFotoProcesada = 'avatar_' . $usuarioId . '_' . uniqid() . '.' . $ext;
+        $rutaDestino = $directorioAvatars . $nombreFotoProcesada;
+
+        if (!move_uploaded_file($archivoFoto['tmp_name'], $rutaDestino)) {
+            return ['ok' => false, 'mensaje' => 'Error al guardar la foto de perfil en el servidor.'];
+        }
+    }
+
+    if ($nombreFotoProcesada !== null) {
+        $sentencia = $conexion->prepare(
+            'UPDATE usuarios SET nombre = :nombre, correo = :correo, biografia = :biografia, foto_perfil = :foto WHERE id = :id'
+        );
+        $sentencia->execute([
+            'nombre'    => $nombre,
+            'correo'    => $correo,
+            'biografia' => $biografia,
+            'foto'      => $nombreFotoProcesada,
+            'id'        => $usuarioId,
+        ]);
+    } else {
+        $sentencia = $conexion->prepare(
+            'UPDATE usuarios SET nombre = :nombre, correo = :correo, biografia = :biografia WHERE id = :id'
+        );
+        $sentencia->execute([
+            'nombre'    => $nombre,
+            'correo'    => $correo,
+            'biografia' => $biografia,
+            'id'        => $usuarioId,
+        ]);
+    }
+
+    // Actualizar datos en sesión activa si el usuario editado es el actual
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (($_SESSION['usuario_id'] ?? 0) === $usuarioId) {
+        $_SESSION['nombre']  = $nombre;
+        $_SESSION['usuario'] = $nombre;
+        $_SESSION['email']   = $correo;
+        if ($nombreFotoProcesada !== null) {
+            $_SESSION['foto_perfil'] = $nombreFotoProcesada;
+        }
+    }
+
+    return ['ok' => true, 'mensaje' => 'Tu perfil ha sido actualizado con éxito.'];
 }
 
 /**

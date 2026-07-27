@@ -21,11 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $resultado = validarCredenciales($usuario, $password);
 
     if ($resultado['ok']) {
-        $_SESSION['usuario']    = $resultado['nombre'];
-        $_SESSION['nombre']     = $resultado['nombre'];
-        $_SESSION['email']      = $usuario;
-        $_SESSION['rol']        = $resultado['rol'];
-        $_SESSION['usuario_id'] = $resultado['id'];
+        $_SESSION['usuario']     = $resultado['nombre'];
+        $_SESSION['nombre']      = $resultado['nombre'];
+        $_SESSION['email']       = $usuario;
+        $_SESSION['rol']         = $resultado['rol'];
+        $_SESSION['usuario_id']  = $resultado['id'];
+        $_SESSION['foto_perfil'] = $resultado['foto_perfil'] ?? null;
         header('Location: index.php');
         exit;
     }
