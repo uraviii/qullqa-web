@@ -1,0 +1,6 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo Qullqa">
+  <g fill="none" stroke="#4B2E7C" stroke-width="4" stroke-linejoin="round">
+    <path d="M10 88 L10 60 L28 60 L28 44 L46 44 L46 28 L54 28 L54 44 L72 44 L72 60 L90 60 L90 88 Z" />
+    <circle cx="50" cy="70" r="9" />
+  </g>
+</svg>
